@@ -12,22 +12,26 @@ function Signup() {
 
   const id = useRef();
 
-  if (actionData?.success) {
-    console.log("signup success. Proceed to login");
-    navigate("/auth/signin");
-    updateToast(id.current, {
-      render: "Authorized!",
-      type: "success",
-      isLoading: false,
-      autoClose: 5000,
-    });
-  } else {
-    updateToast(id.current, {
-      render: `${actionData.error}`,
-      type: "error",
-      isLoading: false,
-      autoClose: 5000,
-    });
+  console.log(actionData, "action data");
+
+  if (actionData) {
+    if (actionData.success) {
+      console.log("signup success. Proceed to login");
+      navigate("/auth/signin");
+      updateToast(id.current, {
+        render: "Authorized!",
+        type: "success",
+        isLoading: false,
+        autoClose: 5000,
+      });
+    } else {
+      updateToast(id.current, {
+        render: `${actionData.error || "Internal Server Error"}`,
+        type: "error",
+        isLoading: false,
+        autoClose: 5000,
+      });
+    }
   }
 
   const onSubmit = () => {
