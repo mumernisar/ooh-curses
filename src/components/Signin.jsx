@@ -18,7 +18,7 @@ const Signin = () => {
         try {
           const result = await login();
           if (result.success) {
-            updateToast(id, {
+            updateToast(id.current, {
               render: "Authorized!",
               type: "success",
               isLoading: false,
@@ -26,7 +26,7 @@ const Signin = () => {
             });
             console.log("User updated:", result.data);
           } else {
-            updateToast(id, {
+            updateToast(id.current, {
               render: `${result.error}`,
               type: "error",
               isLoading: false,
@@ -34,7 +34,7 @@ const Signin = () => {
             });
           }
         } catch (error) {
-          updateToast(id, {
+          updateToast(id.current, {
             render: `Something went wrong: ${error.message}`,
             type: "error",
             isLoading: false,
