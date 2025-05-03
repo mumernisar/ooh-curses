@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+@keyframes scytheAnimation {
+  0% {
+    margin-left: 6rem;
+    margin-top: 14.5rem;
+    transform: rotate(140deg) scale(1.5);
+    opacity: 0.1;
+  }
+  20% {
+    margin-left: 10rem; /* 2 + 0.2*(26-2) = 6.8rem */
+    margin-top: -15.5rem; /* -1.5 + 0.2*(-18.5+1.5) = -4.9rem */
+    transform: rotate(145deg) scale(1.4); /* 100 + 0.2*(160-100)=112deg; scale: 1 - 0.02 */
+    opacity: 0.2;
+  }
+  40% {
+    margin-left: 18rem; /* 2 + 0.4*24 = 11.6rem */
+    margin-top: -26rem; /* -1.5 + 0.4*(-17)= -8.3rem */
+    transform: rotate(1500deg) scale(1.2); /* 100 + 0.4*60=124deg; scale: 1 - 0.04 */
+    opacity: 0.4;
+  }
+  60% {
+    margin-left: 14rem; /* 2 + 0.6*24 = 16.4rem */
+    margin-top: -16rem; /* -1.5 + 0.6*(-17)= -11.7rem */
+    transform: rotate(155deg) scale(1); /* 100 + 0.6*60=136deg; scale: 1 - 0.06 */
+    opacity: 0.7;
+  }
+  100% {
+    margin-left: 26rem;
+    margin-top: -17rem;
+    position: absolute;
+    transform-origin: bottom;
+    transform: rotate(160deg) scale(0.9);
+    opacity: 1;
+  }
+}
+
+.scythe-svg {
+  position: absolute;
+  transform-origin: bottom;
+  transform: rotate(140deg) scale(1.5);
+  opacity: 0;
+}
+.reaper-container .reaperHover:hover + .scythe-svg {
+  animation: scytheAnimation 10s forwards;
+}
+.reaper-container .reaperHover:hover + .scythe-svg > svg {
+  animation: scytheAnimation 10s forwards;
+}
+.animate-scythe {
+  margin-left: 26rem;
+  margin-top: -17rem;
+  position: absolute;
+  transform-origin: bottom;
+  transform: rotate(160deg) scale(0.9);
+  opacity: 1;
+}
+
+.noHover {
+  pointer-events: none;
+}
