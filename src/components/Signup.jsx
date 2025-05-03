@@ -1,17 +1,38 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Loader from "./../components/Loader";
 import { useNavigate } from "react-router-dom";
 import { Form, Link, useActionData } from "react-router-dom";
+import { useToast } from "../utils/useToast";
 
 function Signup() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const actionData = useActionData();
+  const { showLoading, updateToast } = useToast();
+
+  const id = useRef();
 
   if (actionData?.success) {
     console.log("signup success. Proceed to login");
     navigate("/auth/signin");
+    updateToast(id.current, {
+      render: "Authorized!",
+      type: "success",
+      isLoading: false,
+      autoClose: 5000,
+    });
+  } else {
+    updateToast(id.current, {
+      render: `${actionData.error}`,
+      type: "error",
+      isLoading: false,
+      autoClose: 5000,
+    });
   }
+
+  const onSubmit = () => {
+    id.current = showLoading("Please wait...");
+  };
 
   return (
     <Form method="post" className="mt-8 grid grid-cols-6 gap-6">
@@ -100,7 +121,10 @@ function Signup() {
       </div>
 
       <div className="col-span-6 sm:flex sm:items-center sm:gap-4">
-        <button className="inline-block shrink-0 rounded-md border border-blue-600 bg-blue-600 px-12 py-3 text-sm font-medium text-white transition hover:bg-transparent hover:text-blue-600 focus:ring-3 focus:outline-hidden">
+        <button
+          onClick={onSubmit}
+          className="inline-block shrink-0 rounded-md border border-blue-600 bg-blue-600 px-12 py-3 text-sm font-medium text-white transition hover:bg-transparent hover:text-blue-600 focus:ring-3 focus:outline-hidden"
+        >
           Sign up
         </button>
 
