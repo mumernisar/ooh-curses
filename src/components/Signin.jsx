@@ -8,15 +8,13 @@ const Signin = () => {
   const navigate = useNavigate();
   const { _, login } = useUser();
   const { showLoading, updateToast } = useToast();
-
+  const id = useRef();
   const hasLoggedIn = useRef(false);
 
   useEffect(() => {
     if (actionData?.success && !hasLoggedIn.current) {
       hasLoggedIn.current = true;
       (async () => {
-        const id = showLoading("Please wait...");
-
         try {
           const result = await login();
           if (result.success) {
@@ -47,6 +45,10 @@ const Signin = () => {
       })();
     }
   }, [actionData?.success, login, navigate, updateToast, showLoading]);
+
+  const onSubmit = () => {
+    id.current = showLoading("Please wait...");
+  };
 
   return (
     <Form method="post" className="mt-8 grid grid-cols-6 gap-6">
@@ -85,6 +87,7 @@ const Signin = () => {
 
       <div className="col-span-6 sm:flex sm:items-center sm:gap-4">
         <button
+          onClick={onSubmit}
           type="submit"
           className="inline-block shrink-0 rounded-md border border-blue-600 bg-blue-600 px-12 py-3 text-sm font-medium text-white transition hover:bg-transparent hover:text-blue-600"
         >
