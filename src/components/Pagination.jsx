@@ -6,11 +6,7 @@ export default function Pagination({
   onPageChange,
   entriesPerPage,
 }) {
-  console.log(
-    currentPage.current === totalPages,
-    currentPage.current,
-    totalPages,
-  );
+
   const totalCeiled = Math.ceil(totalPages);
   return (
     <div className="flex flex-col items-center">

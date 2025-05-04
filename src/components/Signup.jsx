@@ -12,11 +12,9 @@ function Signup() {
 
   const id = useRef();
 
-  console.log(actionData, "action data");
 
   if (actionData) {
     if (actionData.success) {
-      console.log("signup success. Proceed to login");
       navigate("/auth/signin");
       updateToast(id.current, {
         render: "Authorized!",

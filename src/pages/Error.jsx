@@ -3,7 +3,6 @@ import LinkButton from "../ui/LinkButton";
 import NotFound from "./../components/NotFound";
 function Error({ message }) {
   const error = useRouteError();
-  console.log(error);
 
   return (
     <div>

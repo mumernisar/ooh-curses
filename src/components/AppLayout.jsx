@@ -16,22 +16,18 @@ const AppLayout = () => {
     if (hasCheckedAuth.current) return; // ✅ Prevents re-triggering
     hasCheckedAuth.current = true; // ✅ Mark as checked
 
-    console.log("Checking authentication...");
 
     const checkAuth = async () => {
       const token = cookies.get("jwt");
 
       if (!token) {
-        console.log("No JWT found, redirecting to login...");
         logout();
         navigate("/auth/signin", { replace: true });
         return;
       }
 
       try {
-        console.log("Fetching user...");
         await refreshUser(); // ✅ Fetch user authentication state
-        console.log("User fetched!");
 
         if (location.pathname.startsWith("/auth")) {
           navigate("/", { replace: true }); // ✅ Redirect if logged in

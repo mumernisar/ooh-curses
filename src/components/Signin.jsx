@@ -24,7 +24,6 @@ const Signin = () => {
               isLoading: false,
               autoClose: 5000,
             });
-            console.log("User updated:", result.data);
           } else {
             updateToast(id.current, {
               render: `${result.error}`,

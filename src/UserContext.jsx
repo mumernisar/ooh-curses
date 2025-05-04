@@ -13,11 +13,10 @@ const initialState = {
 function reducer(state, action) {
   switch (action.type) {
     case "loading":
-      console.log("loading...");
+      ("loading...");
       return { ...state, isLoading: true, error: null };
 
     case "user/login":
-      console.log("user/login");
       return { ...state, isLoading: false, user: action.payload, error: null };
 
     case "user/logout":
@@ -41,7 +40,6 @@ export const UserProvider = ({ children }) => {
   const refreshUser = async () => {
     const cookie = new Cookies();
 
-    console.log("refreshUser called");
     dispatch({ type: "loading" });
 
     const token = cookie.get("jwt");
@@ -60,12 +58,10 @@ export const UserProvider = ({ children }) => {
       if (!res.ok) {
         throw new Error(data.message || "Invalid token");
       }
-      console.log("user/login", data, "verify/token");
 
       dispatch({ type: "user/login", payload: data.user });
       return { success: true, data: data.user };
     } catch (error) {
-      console.log(error);
       dispatch({ type: "user/error", payload: error.message });
       cookie.remove("jwt");
       return { success: false, data: error.message };

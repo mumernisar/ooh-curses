@@ -8,11 +8,9 @@ function Dropdown({ currentPage }) {
   const toggleDropdown = () => setIsOpen(!isOpen);
 
   const handleOptionSelect = (option) => {
-    console.log("setting option to ", option);
     if (option == selectedOption.current) return;
     selectedOption.current = option;
     currentPage.current = 1;
-    console.log(selectedOption.current);
     setIsOpen(false);
 
     toggleSort();

@@ -32,7 +32,6 @@ function Checkin() {
   const updateTimeAgo = (lastCheckInDate) => {
     const now = new Date();
     const diffInMinutes = Math.floor((now - lastCheckInDate) / 60000);
-    console.log(diffInMinutes, lastCheckInDate, "diffInMinutes");
     if (diffInMinutes < 1) {
       setTimeAgo("Just now");
     } else if (diffInMinutes < 60) {
@@ -58,7 +57,6 @@ function Checkin() {
           isLoading: false,
           autoClose: 5000,
         });
-        console.log("User updated:", result.data);
       } else {
         updateToast(id, {
           render: ` ${result.message}`,
@@ -74,7 +72,6 @@ function Checkin() {
         isLoading: false,
         autoClose: 5000,
       });
-      console.log("Error:", error);
     }
     setInput("");
   };

@@ -25,7 +25,6 @@ export const LogProvider = ({ children }) => {
     const cookies = new Cookies();
     const token = cookies.get("jwt");
     if (!token) {
-      console.log("User not authenticated");
       return [];
     }
     const response = await fetch(url, {
@@ -47,10 +46,7 @@ export const LogProvider = ({ children }) => {
   const logLoader = useCallback(async (entriesPerPage, lastTimeStamp) => {
     setIsLoading(true);
     try {
-      console.log(
-        selectedOption.current.toUpperCase().slice(0, 3),
-        "selected option",
-      );
+
       const query = new URLSearchParams({
         limit: entriesPerPage,
         ...(lastTimeStamp && { lastTimestamp: lastTimeStamp }),
@@ -58,7 +54,6 @@ export const LogProvider = ({ children }) => {
       });
 
       const { data } = await fetchData(`${API_URL}/activity/get?${query}`);
-      console.log(data);
       if (!data) return;
       setLogCollection((prev) => [...prev, ...data]);
       return data;
@@ -81,13 +76,11 @@ export const LogProvider = ({ children }) => {
       try {
         if (hasCachedLogs) {
           const cachedLogs = logCollection.slice(start, start + entriesPerPage);
-          console.log("Setting to previous logs ... ", cachedLogs);
 
           setLog(cachedLogs);
         } else {
           const lastTimeStamp = logCollection.at(-1)?.timestamp || null;
           const newLogs = await logLoader(entriesPerPage, lastTimeStamp);
-          console.log("Setting to new logs ... ", newLogs);
           if (!newLogs) setLog([]);
           setLog(newLogs);
         }
@@ -114,8 +107,6 @@ export const LogProvider = ({ children }) => {
           body: JSON.stringify(newCheckIn),
         });
         if (selectedOption.current == SortOptions.ASCENDING) {
-          // setLogCollection((prev) => [...prev, newCheckIn]);
-          // reload cause it will cause conflicts
           clearAll();
           loadLogs(entriesPerPage, 1);
         } else {

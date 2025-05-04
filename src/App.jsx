@@ -66,7 +66,6 @@ const router = createBrowserRouter(
 
 function AppWithAuth() {
   let { isLoading, error } = useUser();
-  console.log(isLoading, "isLoading");
   isLoading = isLoading ? false : isLoading;
   if (isLoading) {
     return <LoaderFull />;

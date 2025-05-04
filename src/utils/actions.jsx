@@ -22,14 +22,11 @@ export const signUpAction = async ({ request }) => {
     const data = await response.json();
 
     if (!response.ok) {
-      console.log(data, "data");
       return { error: data.message || "Signup failed!" };
     }
 
-    console.log("signup success. Proceed to login");
     return { success: true, message: "Signup successful!" };
   } catch (error) {
-    console.log(error);
     return { error: "Something went wrong. Please try again!" };
   }
 };
@@ -48,8 +45,6 @@ export const signInAction = async ({ request }) => {
     });
 
     const data = await response.json();
-    console.log(response, "response");
-    console.log(data, "data");
 
     if (!response.ok) {
       return { error: data.message || "Login failed!" };
@@ -65,7 +60,6 @@ export const signInAction = async ({ request }) => {
 
     return { success: true, message: "Login successful!" };
   } catch (error) {
-    console.log(error);
     return { error: "Something went wrong. Please try again!" };
   }
 };

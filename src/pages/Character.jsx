@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useUser } from "../UserContext";
 import { Link } from "react-router-dom";
 
@@ -7,15 +7,15 @@ import { useToast } from "../utils/useToast";
 function Character() {
   const { user, updateUser } = useUser();
   const { showLoading, updateToast } = useToast();
-  console.log(user, "user");
 
   const [name, setName] = useState("");
-  const email = user?.email || "";
+  const email = useRef("");
   const [charData, setCharData] = useState([]);
 
   useEffect(() => {
     if (user) {
       setName(user.name);
+      email.current = user.email;
       setCharData(user.charData);
     }
   }, [user]);
@@ -32,7 +32,8 @@ function Character() {
     setCharData((prev) => prev.filter((_, i) => i !== index));
 
   const handleSave = async () => {
-    const updatedUser = { name, email, charData };
+    const mail = email.current
+    const updatedUser = { name, mail, charData };
     const id = showLoading("Please wait...");
 
     try {
@@ -44,7 +45,6 @@ function Character() {
           isLoading: false,
           autoClose: 5000,
         });
-        console.log("User updated:", result.data);
       } else {
         updateToast(id, {
           render: `Failed to update user. ${result.error}`,
@@ -54,14 +54,12 @@ function Character() {
         });
       }
     } catch (error) {
-      // If there is a network or unknown error
       updateToast(id, {
         render: `Something went wrong: ${error.message}`,
         type: "error",
         isLoading: false,
         autoClose: 5000,
       });
-      console.log("Error:", error);
     }
   };
 
@@ -90,9 +88,7 @@ function Character() {
 
         {/* Name Field */}
         <div className="mt-4">
-          <label className="block text-sm font-medium text-white">
-            Name
-          </label>
+          <label className="block text-sm font-medium text-white">Name</label>
           <input
             type="text"
             value={name}
@@ -103,12 +99,10 @@ function Character() {
 
         {/* Email Field */}
         <div className="mt-4">
-          <label className="block text-sm font-medium text-white">
-            Email
-          </label>
+          <label className="block text-sm font-medium text-white">Email</label>
           <input
             type="email"
-            value={email}
+            value={email.current}
             disabled
             className="mt-1 w-full cursor-not-allowed rounded-lg border border-gray-600 bg-gray-900/60 p-2 text-gray-400"
           />
