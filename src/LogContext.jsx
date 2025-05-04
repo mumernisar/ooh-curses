@@ -88,6 +88,7 @@ export const LogProvider = ({ children }) => {
           const lastTimeStamp = logCollection.at(-1)?.timestamp || null;
           const newLogs = await logLoader(entriesPerPage, lastTimeStamp);
           console.log("Setting to new logs ... ", newLogs);
+          if (!newLogs) setLog([]);
           setLog(newLogs);
         }
       } catch (err) {
@@ -133,6 +134,7 @@ export const LogProvider = ({ children }) => {
   const getDocCount = useCallback(async () => {
     try {
       const { count } = await fetchData(`${API_URL}/activity/count`);
+      if (!count) return;
       setDocCount(count);
       return count;
     } catch (err) {
