@@ -20,9 +20,8 @@ export const signUpAction = async ({ request }) => {
     });
 
     const data = await response.json();
-
     if (!response.ok) {
-      return { error: data.message || "Signup failed!" };
+      return { error: data.error || "Signup failed!" };
     }
 
     return { success: true, message: "Signup successful!" };
@@ -47,7 +46,7 @@ export const signInAction = async ({ request }) => {
     const data = await response.json();
 
     if (!response.ok) {
-      return { error: data.message || "Login failed!" };
+      return { error: data.error || "Login failed!" };
     }
 
     const cookies = new Cookies();

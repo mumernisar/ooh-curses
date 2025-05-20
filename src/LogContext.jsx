@@ -46,7 +46,6 @@ export const LogProvider = ({ children }) => {
   const logLoader = useCallback(async (entriesPerPage, lastTimeStamp) => {
     setIsLoading(true);
     try {
-
       const query = new URLSearchParams({
         limit: entriesPerPage,
         ...(lastTimeStamp && { lastTimestamp: lastTimeStamp }),
@@ -76,12 +75,15 @@ export const LogProvider = ({ children }) => {
       try {
         if (hasCachedLogs) {
           const cachedLogs = logCollection.slice(start, start + entriesPerPage);
-
           setLog(cachedLogs);
         } else {
           const lastTimeStamp = logCollection.at(-1)?.timestamp || null;
           const newLogs = await logLoader(entriesPerPage, lastTimeStamp);
-          if (!newLogs) setLog([]);
+          if (!newLogs) {
+            setLog([]);
+            return;
+          }
+
           setLog(newLogs);
         }
       } catch (err) {

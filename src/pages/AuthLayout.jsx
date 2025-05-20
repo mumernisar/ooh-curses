@@ -1,4 +1,3 @@
-// AuthLayout.jsx
 import React from "react";
 import { Outlet } from "react-router-dom";
 import Reaper from "../utils/Reaper";

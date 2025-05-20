@@ -18,13 +18,6 @@ const LogList = () => {
   const onPageChange = async (page) => {
     await loadLogs(entriesPerPage, page);
   };
-  // const onToggle = async () => {
-  //   // const key = Object.keys(SortOptions).find(
-  //   //   (k) => SortOptions[k] === SortOptions[selectedOption],
-  //   // );
-
-  // };
-
   const stableLoadLogs = useCallback(async () => {
     await loadLogs(entriesPerPage, currentPage.current);
   }, [loadLogs, entriesPerPage]);

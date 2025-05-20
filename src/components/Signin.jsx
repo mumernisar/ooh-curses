@@ -24,13 +24,6 @@ const Signin = () => {
               isLoading: false,
               autoClose: 5000,
             });
-          } else {
-            updateToast(id.current, {
-              render: `${result.error}`,
-              type: "error",
-              isLoading: false,
-              autoClose: 5000,
-            });
           }
         } catch (error) {
           updateToast(id.current, {
@@ -42,8 +35,22 @@ const Signin = () => {
         }
         navigate("/");
       })();
+    } else if (actionData?.error) {
+      updateToast(id.current, {
+        render: `${actionData.error}`,
+        type: "error",
+        isLoading: false,
+        autoClose: 5000,
+      });
     }
-  }, [actionData?.success, login, navigate, updateToast, showLoading]);
+  }, [
+    actionData?.success,
+    actionData?.error,
+    login,
+    navigate,
+    updateToast,
+    showLoading,
+  ]);
 
   const onSubmit = () => {
     id.current = showLoading("Please wait...");

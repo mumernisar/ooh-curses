@@ -16,7 +16,11 @@ function Checkin() {
 
   useEffect(() => {
     if (log?.length > 0 && user) {
-      const lastCheckInDate = new Date(user?.lastCheckIn);
+      if (log.length == 1) {
+        user.lastCheckIn = log[0].timestamp;
+      }
+      const lastCheckInDate = new Date(user.lastCheckIn);
+
       updateTimeAgo(lastCheckInDate);
 
       const interval = setInterval(() => {
@@ -24,14 +28,17 @@ function Checkin() {
       }, 60000);
 
       return () => {
-        clearInterval(interval); // Clean up the interval
+        clearInterval(interval);
       };
+    } else if (log?.length == 0 && user) {
+      setTimeAgo("Never");
     }
   }, [log, user]);
 
   const updateTimeAgo = (lastCheckInDate) => {
     const now = new Date();
     const diffInMinutes = Math.floor((now - lastCheckInDate) / 60000);
+
     if (diffInMinutes < 1) {
       setTimeAgo("Just now");
     } else if (diffInMinutes < 60) {
@@ -44,6 +51,7 @@ function Checkin() {
       setTimeAgo(`${Math.floor(diffInMinutes / 1440)} days ago`);
     }
   };
+
   const onSubmit = async () => {
     const id = showLoading("Disabling curse protocols...");
 
@@ -74,6 +82,7 @@ function Checkin() {
       });
     }
     setInput("");
+    setTimeAgo("Just now");
   };
   return (
     <div className="relative z-10 mt-12 w-[90%] max-w-xl rounded-2xl border border-yellow-500/30 bg-gray-800/80 p-6 shadow-lg backdrop-blur-lg">
@@ -87,17 +96,11 @@ function Checkin() {
       <h1 className="mt-4 text-center text-3xl font-bold text-white">
         📜 Daily Check-in
       </h1>
-      {/* <p className="mt-2 text-center text-white">
-        Dodge the hex, check in now!
-      </p> */}
-
-      {/* Last Check-in Display */}
 
       <p className="mt-2 text-center text-sm text-white">
-        Last check-in: {(log?.length > 0 && timeAgo) || "Loading..."}
+        Last check-in: {(log?.length >= 0 && timeAgo) || "Loading..."}
       </p>
 
-      {/* Textarea */}
       <textarea
         className="mt-4 w-full rounded-lg border border-yellow-500/40 bg-gray-900/60 p-3 text-white placeholder-gray-400"
         placeholder="What have I been up to?"
@@ -105,7 +108,6 @@ function Checkin() {
         onChange={(e) => setInput(e.target.value)}
       ></textarea>
 
-      {/* Button */}
       <button
         onClick={onSubmit}
         className="mt-4 w-full rounded-xl bg-yellow-600 px-4 py-2 font-bold text-white shadow-lg transition-all hover:bg-yellow-700 hover:shadow-yellow-500/50"

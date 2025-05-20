@@ -1,20 +1,20 @@
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useRef } from "react";
-import { useUser } from "../UserContext"; // ✅ Import from context
+import { useUser } from "../UserContext"; 
 import { Cookies } from "react-cookie";
 
 const AppLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, isLoading, refreshUser, logout } = useUser();
+  const { refreshUser, logout } = useUser();
 
-  const hasCheckedAuth = useRef(false); // ✅ Prevents re-executing `checkAuth()`
+  const hasCheckedAuth = useRef(false);
 
   useEffect(() => {
     const cookies = new Cookies();
 
-    if (hasCheckedAuth.current) return; // ✅ Prevents re-triggering
-    hasCheckedAuth.current = true; // ✅ Mark as checked
+    if (hasCheckedAuth.current) return; 
+    hasCheckedAuth.current = true; 
 
 
     const checkAuth = async () => {
@@ -27,10 +27,10 @@ const AppLayout = () => {
       }
 
       try {
-        await refreshUser(); // ✅ Fetch user authentication state
+        await refreshUser(); 
 
         if (location.pathname.startsWith("/auth")) {
-          navigate("/", { replace: true }); // ✅ Redirect if logged in
+          navigate("/", { replace: true }); 
         }
       } catch (error) {
         console.error("Error during auth check:", error);
