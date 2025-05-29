@@ -1,12 +1,57 @@
-# React + Vite
+# 🧙‍♂️ Ooh Curses
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Ooh Curses** is a fun and slightly unhinged accountability app that cheers you on—or roasts you mercilessly.
 
-Currently, two official plugins are available:
+You sign up. You check in. You stay on track.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Or... you don’t. And then AI sends a lighthearted _curse_ to your inbox.  
+Stick to the plan? Get a wholesome joke instead.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 🌐 [Try it Live → ooh-curses.vercel.app](https://ooh-curses.vercel.app)
+
+---
+
+## 🎯 What It Does
+
+- ✅ Daily check-in system
+- 💌 Miss a day? Get a humorous, AI-generated curse by email
+- 😂 Check in successfully? Receive a feel-good joke (thanks to the Groq API)
+- 🎭 Customize your character’s voice/persona for more targeted sass
+- 📜 Logs your activity so you can look back on your streaks (or slumps)
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer      | Tech Used                        |
+| ---------- | -------------------------------- |
+| Frontend   | React + Vite + Tailwind CSS      |
+| Backend    | Go (Fiber)                       |
+| Auth & DB  | Firebase Auth + Firestore        |
+| Messaging  | Groq API                        |
+| Deployment | Vercel (Frontend) + Render (API) |
+
+---
+
+## 🤔 Why?
+
+Because productivity doesn’t have to be boring.
+
+Ooh Curses helps you stay on track using equal parts encouragement and digital bullying — tailored just for you.
+
+Whether you want to be praised by a pirate, shamed by a wizard, or trolled by a goblin... you're in control of how you're held accountable.
+
+---
+
+## 📬 Feedback
+
+Feedback, feature requests, new curse ideas?  
+Open an issue or just sign up and hit reply on your first roast email 😈
+
+---
+
+## 📜 License
+
+MIT
