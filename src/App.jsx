@@ -1,10 +1,13 @@
-import React, { Suspense, lazy } from "react";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import { ToastContainer} from "react-toastify";
+import { Suspense, lazy } from "react";
+import { createBrowserRouter } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 import { CookiesProvider } from "react-cookie";
-import { UserProvider, useUser } from "./UserContext.jsx";
+import { UserProvider } from "./UserContext.jsx";
 import { signUpAction, signInAction } from "./utils/actions";
 import { LogProvider } from "./LogContext";
+import { loaderApp } from "./utils/loader.jsx";
+import ModApp from "./utils/ModApp.jsx";
+
 import LoaderFull from "./components/LoaderFull";
 
 const AppLayout = lazy(() => import("./components/AppLayout"));
@@ -22,6 +25,7 @@ const router = createBrowserRouter(
       element: <AppLayout />,
       errorElement: <Error />,
       hydrateFallbackElement: <LoaderFull />,
+      loader: loaderApp,
       children: [
         {
           path: "/",
@@ -64,25 +68,13 @@ const router = createBrowserRouter(
   },
 );
 
-function AppWithAuth() {
-  let { isLoading, error } = useUser();
-  isLoading = isLoading ? false : isLoading;
-  if (isLoading) {
-    return <LoaderFull />;
-  }
-  if (error) {
-    return <Error message={error} />;
-  }
-  return <RouterProvider router={router} />;
-}
-
 function App() {
   return (
     <CookiesProvider>
       <UserProvider>
         <LogProvider>
           <Suspense fallback={<LoaderFull />}>
-            <AppWithAuth />
+            <ModApp router={router} />
             <ToastContainer
               position="top-right"
               autoClose={5000}

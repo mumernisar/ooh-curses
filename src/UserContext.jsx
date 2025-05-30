@@ -13,7 +13,7 @@ const initialState = {
 function reducer(state, action) {
   switch (action.type) {
     case "loading":
-      ("loading...");
+      "loading...";
       return { ...state, isLoading: true, error: null };
 
     case "user/login":
@@ -39,13 +39,13 @@ export const UserProvider = ({ children }) => {
 
   const refreshUser = async () => {
     const cookie = new Cookies();
-
+    console.log(state.isLoading);
     dispatch({ type: "loading" });
+    console.log(state.isLoading);
 
     const token = cookie.get("jwt");
 
     if (!token) {
-      dispatch({ type: "user/logout" });
       return;
     }
     try {
@@ -73,6 +73,7 @@ export const UserProvider = ({ children }) => {
 
   function logout() {
     cookies.remove("jwt");
+
     dispatch({ type: "user/logout" });
   }
 
