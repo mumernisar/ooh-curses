@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Loader from "./../components/Loader";
 import { useNavigate } from "react-router-dom";
 import { Form, Link, useActionData } from "react-router-dom";
@@ -9,36 +9,52 @@ function Signup() {
   const navigate = useNavigate();
   const actionData = useActionData();
   const { showLoading, updateToast } = useToast();
-
   const id = useRef();
+  const wakeUpTimeout = useRef();
 
-
-  if (actionData) {
-    if (actionData.success) {
-      navigate("/auth/signin");
-      updateToast(id.current, {
-        render: "Authorized!",
-        type: "success",
-        isLoading: false,
-        autoClose: 5000,
-      });
-    } else {
-      updateToast(id.current, {
-        render: `${actionData.error || "Internal Server Error"}`,
-        type: "error",
-        isLoading: false,
-        autoClose: 5000,
-      });
+  const clearWakeUp = () => {
+    if (wakeUpTimeout.current) {
+      clearTimeout(wakeUpTimeout.current);
+      wakeUpTimeout.current = null;
     }
-  }
+  };
+
+  useEffect(() => {
+    if (actionData) {
+      clearWakeUp();
+      if (actionData.success) {
+        navigate("/auth/signin");
+        updateToast(id.current, {
+          render: "Authorized!",
+          type: "success",
+          isLoading: false,
+          autoClose: 5000,
+        });
+      } else {
+        updateToast(id.current, {
+          render: `${actionData.error || "Internal Server Error"}`,
+          type: "error",
+          isLoading: false,
+          autoClose: 5000,
+        });
+      }
+    }
+  }, [actionData, navigate, updateToast]);
 
   const onSubmit = () => {
     id.current = showLoading("Please wait...");
+    wakeUpTimeout.current = setTimeout(() => {
+      updateToast(id.current, {
+        render: "Waking up server...",
+        isLoading: true,
+      });
+    }, 5000); // 5s timeout
   };
 
   return (
     <Form method="post" className="mt-8 grid grid-cols-6 gap-6">
       <Loader isLoading={isLoading} setIsLoading={setIsLoading} />
+
       <div className="col-span-6 sm:col-span-3">
         <label
           htmlFor="FirstName"
@@ -46,7 +62,6 @@ function Signup() {
         >
           First Name
         </label>
-
         <input
           type="text"
           id="FirstName"
@@ -62,7 +77,6 @@ function Signup() {
         >
           Last Name
         </label>
-
         <input
           type="text"
           id="LastName"
@@ -76,10 +90,8 @@ function Signup() {
           htmlFor="Email"
           className="block text-sm font-medium text-gray-700"
         >
-          {" "}
-          Email{" "}
+          Email
         </label>
-
         <input
           type="email"
           autoComplete="false"
@@ -94,10 +106,8 @@ function Signup() {
           htmlFor="Password"
           className="block text-sm font-medium text-gray-700"
         >
-          {" "}
-          Password{" "}
+          Password
         </label>
-
         <input
           type="password"
           id="Password"
@@ -113,7 +123,6 @@ function Signup() {
         >
           Password Confirmation
         </label>
-
         <input
           type="password"
           id="PasswordConfirmation"

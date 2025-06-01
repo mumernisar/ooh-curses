@@ -9,10 +9,19 @@ const Signin = () => {
   const { _, login } = useUser();
   const { showLoading, updateToast } = useToast();
   const id = useRef();
+  const wakeUpTimeout = useRef();
   const hasLoggedIn = useRef(false);
+
+  const clearWakeUp = () => {
+    if (wakeUpTimeout.current) {
+      clearTimeout(wakeUpTimeout.current);
+      wakeUpTimeout.current = null;
+    }
+  };
 
   useEffect(() => {
     if (actionData?.success && !hasLoggedIn.current) {
+      clearWakeUp();
       hasLoggedIn.current = true;
       (async () => {
         try {
@@ -33,9 +42,12 @@ const Signin = () => {
             autoClose: 5000,
           });
         }
-        navigate("/");
+        setTimeout(() => {
+          navigate("/");
+        }, 100);
       })();
     } else if (actionData?.error) {
+      clearWakeUp();
       updateToast(id.current, {
         render: `${actionData.error}`,
         type: "error",
@@ -43,17 +55,17 @@ const Signin = () => {
         autoClose: 5000,
       });
     }
-  }, [
-    actionData?.success,
-    actionData?.error,
-    login,
-    navigate,
-    updateToast,
-    showLoading,
-  ]);
+  }, [actionData?.success, actionData?.error, login, navigate, updateToast]);
 
   const onSubmit = () => {
     id.current = showLoading("Please wait...");
+
+    wakeUpTimeout.current = setTimeout(() => {
+      updateToast(id.current, {
+        render: "Waking up server...",
+        isLoading: true,
+      });
+    }, 5000);
   };
 
   return (
