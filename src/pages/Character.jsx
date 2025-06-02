@@ -1,5 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
+
 import { useUser } from "../UserContext";
+import { useCookies } from "react-cookie";
+
 import { Link } from "react-router-dom";
 
 import { useToast } from "../utils/useToast";
@@ -7,10 +11,31 @@ import { useToast } from "../utils/useToast";
 function Character() {
   const { user, updateUser } = useUser();
   const { showLoading, updateToast } = useToast();
-
+  const [cookies, setCookie] = useCookies(["github_connect_attempted"]);
   const [name, setName] = useState("");
   const email = useRef("");
   const [charData, setCharData] = useState([]);
+
+  const [searchParams] = useSearchParams();
+  const [githubUsernameInput, setGithubUsernameInput] = useState("");
+  const [showVerify, setShowVerify] = useState(false);
+
+  useEffect(() => {
+    const installationIdFromUrl = searchParams.get("installation_id");
+    if (installationIdFromUrl && !cookies.installation_id) {
+      setCookie("installation_id", installationIdFromUrl, {
+        path: "/",
+        maxAge: 60 * 60 * 12, // 12 hours
+      });
+      setCookie("github_connect_attempted", true, {
+        path: "/",
+        maxAge: 60 * 60 * 12,
+      });
+      setShowVerify(true);
+    } else if (cookies.installation_id && !user?.github?.connected) {
+      setShowVerify(true);
+    }
+  }, [searchParams, cookies, setCookie, user]);
 
   useEffect(() => {
     if (user) {
@@ -19,6 +44,38 @@ function Character() {
       setCharData(user.charData);
     }
   }, [user]);
+
+  const handleVerifyGithub = async () => {
+    const id = showLoading("Verifying GitHub username...");
+    try {
+      const res = await fetch("/api/github/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: githubUsernameInput.trim(),
+          installation_id: cookies.installation_id,
+        }),
+      });
+      const result = await res.json();
+      if (result.success) {
+        updateToast(id, {
+          render: "GitHub username verified!",
+          type: "success",
+          isLoading: false,
+          autoClose: 4000,
+        });
+      } else {
+        throw new Error(result.error || "Verification failed");
+      }
+    } catch (err) {
+      updateToast(id, {
+        render: err.message || "Error verifying GitHub username",
+        type: "error",
+        isLoading: false,
+        autoClose: 4000,
+      });
+    }
+  };
 
   const addCharField = () => setCharData((prev) => [...prev, "New Trait"]);
 
@@ -32,7 +89,7 @@ function Character() {
     setCharData((prev) => prev.filter((_, i) => i !== index));
 
   const handleSave = async () => {
-    const mail = email.current
+    const mail = email.current;
     const updatedUser = { name, mail, charData };
     const id = showLoading("Please wait...");
 
@@ -108,7 +165,35 @@ function Character() {
           />
         </div>
 
-        {/* Character Data Fields */}
+        <div className="mt-4">
+          <label className="block text-sm font-medium text-white">
+            GitHub Username
+          </label>
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              placeholder="e.g., mumernisar"
+              value={user?.github?.username || githubUsernameInput}
+              disabled={user?.github?.connected}
+              onChange={(e) => setGithubUsernameInput(e.target.value)}
+              className="mt-1 flex-1 rounded-lg border border-gray-600 bg-gray-900/60 p-2 text-white"
+            />
+            {showVerify && !user?.github?.connected && (
+              <button
+                onClick={handleVerifyGithub}
+                className="rounded bg-yellow-600 px-3 py-1 text-sm font-bold text-white hover:bg-yellow-700"
+              >
+                ✅ Verify
+              </button>
+            )}
+          </div>
+          {cookies.github_connect_attempted && !user?.github?.connected && (
+            <div className="mt-1 text-sm text-yellow-400">
+              GitHub will be linked after successful verification push.
+            </div>
+          )}
+        </div>
+
         <div className="mt-6">
           <label className="block text-sm font-medium text-white">
             Character Traits
@@ -146,6 +231,30 @@ function Character() {
         >
           Save Changes
         </button>
+        {!user?.github?.connected && (
+          <div>
+            {cookies.github_connect_attempted && (
+              <div className="mt-2 text-sm text-yellow-400">
+                If authorized, don’t worry... this page will update after first
+                push
+              </div>
+            )}
+            <a
+              href="https://github.com/apps/ooh-curses/installations/new"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() =>
+                setCookie("github_connect_attempted", true, {
+                  path: "/",
+                  maxAge: 60 * 60 * 60 * 12, 
+                })
+              }
+              className="mt-4 block w-full rounded-lg border border-blue-500 bg-blue-600 px-4 py-2 text-center font-bold text-white transition-all hover:bg-blue-700"
+            >
+              🔗 Connect GitHub
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );
