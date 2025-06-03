@@ -11,31 +11,78 @@ import { useToast } from "../utils/useToast";
 function Character() {
   const { user, updateUser } = useUser();
   const { showLoading, updateToast } = useToast();
-  const [cookies, setCookie] = useCookies(["github_connect_attempted"]);
   const [name, setName] = useState("");
   const email = useRef("");
   const [charData, setCharData] = useState([]);
 
+  const [cookies, setCookie, removeCookie] = useCookies([
+    "installation_id",
+    "github_connect_attempted",
+    "github_auto_verify_started",
+  ]);
+
   const [searchParams] = useSearchParams();
-  const [githubUsernameInput, setGithubUsernameInput] = useState("");
-  const [showVerify, setShowVerify] = useState(false);
 
   useEffect(() => {
-    const installationIdFromUrl = searchParams.get("installation_id");
-    if (installationIdFromUrl && !cookies.installation_id) {
-      setCookie("installation_id", installationIdFromUrl, {
+    const insFromURL = searchParams.get("installation_id");
+    if (insFromURL && !cookies.installation_id) {
+      setCookie("installation_id", insFromURL, {
         path: "/",
-        maxAge: 60 * 60 * 12, // 12 hours
+        maxAge: 60 * 60 * 12, // 12 h
       });
       setCookie("github_connect_attempted", true, {
         path: "/",
         maxAge: 60 * 60 * 12,
       });
-      setShowVerify(true);
-    } else if (cookies.installation_id && !user?.github?.connected) {
-      setShowVerify(true);
     }
-  }, [searchParams, cookies, setCookie, user]);
+  }, [searchParams, cookies.installation_id, setCookie]);
+
+  useEffect(() => {
+    if (
+      !user?.github?.connected &&
+      cookies.installation_id &&
+      !cookies.github_auto_verify_started
+    ) {
+      setCookie("github_auto_verify_started", true, {
+        path: "/",
+        maxAge: 60 * 60 * 12,
+      });
+
+      const id = showLoading("Linking GitHub…");
+
+      fetch("/api/github/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          installation_id: Number(cookies.installation_id),
+        }),
+      })
+        .then((r) => r.json())
+        .then((json) => {
+          if (json.success) {
+            updateToast(id, {
+              render: "GitHub linked ✔",
+              type: "success",
+              isLoading: false,
+              autoClose: 4000,
+            });
+            // optional cleanup
+            removeCookie("installation_id", { path: "/" });
+            removeCookie("github_auto_verify_started", { path: "/" });
+          } else {
+            throw new Error(json.error || "linking failed");
+          }
+        })
+        .catch((e) =>
+          updateToast(id, {
+            render: e.message,
+            type: "error",
+            isLoading: false,
+            autoClose: 5000,
+          }),
+        );
+    }
+  }, [user?.github?.connected, cookies.installation_id]);
 
   useEffect(() => {
     if (user) {
@@ -44,38 +91,6 @@ function Character() {
       setCharData(user.charData);
     }
   }, [user]);
-
-  const handleVerifyGithub = async () => {
-    const id = showLoading("Verifying GitHub username...");
-    try {
-      const res = await fetch("/api/github/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: githubUsernameInput.trim(),
-          installation_id: cookies.installation_id,
-        }),
-      });
-      const result = await res.json();
-      if (result.success) {
-        updateToast(id, {
-          render: "GitHub username verified!",
-          type: "success",
-          isLoading: false,
-          autoClose: 4000,
-        });
-      } else {
-        throw new Error(result.error || "Verification failed");
-      }
-    } catch (err) {
-      updateToast(id, {
-        render: err.message || "Error verifying GitHub username",
-        type: "error",
-        isLoading: false,
-        autoClose: 4000,
-      });
-    }
-  };
 
   const addCharField = () => setCharData((prev) => [...prev, "New Trait"]);
 
@@ -119,6 +134,12 @@ function Character() {
       });
     }
   };
+
+  const githubStatusText = user?.github?.connected
+    ? `GitHub: ${user.github.username}`
+    : cookies.installation_id
+      ? "GitHub: Linking…"
+      : "Not connected";
 
   return (
     <div className="relative flex h-full min-h-screen w-full flex-col items-center justify-start overflow-hidden bg-gray-900">
@@ -166,31 +187,20 @@ function Character() {
         </div>
 
         <div className="mt-4">
-          <label className="block text-sm font-medium text-white">
-            GitHub Username
-          </label>
-          <div className="flex items-center gap-2">
-            <input
-              type="text"
-              placeholder="e.g., mumernisar"
-              value={user?.github?.username || githubUsernameInput}
-              disabled={user?.github?.connected}
-              onChange={(e) => setGithubUsernameInput(e.target.value)}
-              className="mt-1 flex-1 rounded-lg border border-gray-600 bg-gray-900/60 p-2 text-white"
-            />
-            {showVerify && !user?.github?.connected && (
-              <button
-                onClick={handleVerifyGithub}
-                className="rounded bg-yellow-600 px-3 py-1 text-sm font-bold text-white hover:bg-yellow-700"
-              >
-                ✅ Verify
-              </button>
-            )}
-          </div>
-          {cookies.github_connect_attempted && !user?.github?.connected && (
-            <div className="mt-1 text-sm text-yellow-400">
-              GitHub will be linked after successful verification push.
-            </div>
+          <label className="block text-sm font-medium text-white">GitHub</label>
+          <input
+            type="text"
+            value={githubStatusText}
+            disabled
+            className="mt-1 w-full cursor-not-allowed rounded-lg border border-gray-600 bg-gray-900/60 p-2 text-gray-400"
+          />
+
+          {!user?.github?.connected && cookies.github_connect_attempted && (
+            <p className="mt-1 text-sm text-yellow-400">
+              {cookies.installation_id
+                ? "Hang tight—linking happens automatically."
+                : "Link your GitHub to enable auto check-ins."}
+            </p>
           )}
         </div>
 
@@ -231,29 +241,19 @@ function Character() {
         >
           Save Changes
         </button>
-        {!user?.github?.connected && (
-          <div>
-            {cookies.github_connect_attempted && (
-              <div className="mt-2 text-sm text-yellow-400">
-                If authorized, don’t worry... this page will update after first
-                push
-              </div>
-            )}
-            <a
-              href="https://github.com/apps/ooh-curses/installations/new"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() =>
-                setCookie("github_connect_attempted", true, {
-                  path: "/",
-                  maxAge: 60 * 60 * 60 * 12, 
-                })
-              }
-              className="mt-4 block w-full rounded-lg border border-blue-500 bg-blue-600 px-4 py-2 text-center font-bold text-white transition-all hover:bg-blue-700"
-            >
-              🔗 Connect GitHub
-            </a>
-          </div>
+        {!user?.github?.connected && !cookies.installation_id && (
+          <a
+            href="https://github.com/apps/ooh-curses/installations/new"
+            onClick={() =>
+              setCookie("github_connect_attempted", true, {
+                path: "/",
+                maxAge: 60 * 60 * 12,
+              })
+            }
+            className="mt-4 block w-full rounded-lg border border-blue-500 bg-blue-600 px-4 py-2 text-center font-bold text-white transition-all hover:bg-blue-700"
+          >
+            🔗 Connect GitHub
+          </a>
         )}
       </div>
     </div>
