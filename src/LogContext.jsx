@@ -21,6 +21,9 @@ export const LogProvider = ({ children }) => {
   const loadingLog = useRef(false);
   const selectedOption = useRef(SortOptions.DESCENDING);
 
+
+  
+
   const fetchData = async (url, options = {}) => {
     const cookies = new Cookies();
     const token = cookies.get("jwt");

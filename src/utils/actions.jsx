@@ -1,6 +1,5 @@
 import { Cookies } from "react-cookie";
 
-// CONSTANTS
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const signUpAction = async ({ request }) => {

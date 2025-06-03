@@ -1,8 +1,11 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
+const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 import { useUser } from "../UserContext";
+
 import { useCookies } from "react-cookie";
+import { Cookies } from "react-cookie";
 
 import { Link } from "react-router-dom";
 
@@ -43,6 +46,8 @@ function Character() {
       cookies.installation_id &&
       !cookies.github_auto_verify_started
     ) {
+      console.log("linking");
+
       setCookie("github_auto_verify_started", true, {
         path: "/",
         maxAge: 60 * 60 * 12,
@@ -50,27 +55,26 @@ function Character() {
 
       const id = showLoading("Linking GitHub…");
 
-      fetch("/api/github/verify", {
+      console.log("linking");
+      fetchData(`${API_URL}/github/verify`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           installation_id: Number(cookies.installation_id),
         }),
       })
-        .then((r) => r.json())
-        .then((json) => {
-          if (json.success) {
+        .then((res) => {
+          if (res.success) {
             updateToast(id, {
               render: "GitHub linked ✔",
               type: "success",
               isLoading: false,
               autoClose: 4000,
             });
-            // optional cleanup
-            removeCookie("installation_id", { path: "/" });
-            removeCookie("github_auto_verify_started", { path: "/" });
+            removeCookie("installation_id");
+            removeCookie("github_auto_verify_started");
           } else {
-            throw new Error(json.error || "linking failed");
+            throw new Error(res.error || "linking failed");
           }
         })
         .catch((e) =>
@@ -82,7 +86,15 @@ function Character() {
           }),
         );
     }
-  }, [user?.github?.connected, cookies.installation_id]);
+  }, [
+    user?.github?.connected,
+    cookies.installation_id,
+    cookies.github_auto_verify_started,
+    removeCookie,
+    setCookie,
+    showLoading,
+    updateToast,
+  ]);
 
   useEffect(() => {
     if (user) {
@@ -92,6 +104,29 @@ function Character() {
     }
   }, [user]);
 
+  const fetchData = async (url, options = {}) => {
+    const cookies = new Cookies();
+    const token = cookies.get("jwt");
+    if (!token) {
+      return [];
+    }
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        ...options.headers,
+      },
+      credentials: "include",
+    });
+
+    const data = await response.json();
+
+    console.log(data, "data------");
+    if (!response.ok) {
+      throw new Error(data.error || "An error occurred while fetching data");
+    }
+    return data;
+  };
   const addCharField = () => setCharData((prev) => [...prev, "New Trait"]);
 
   const handleCharChange = (index, value) => {
@@ -134,9 +169,9 @@ function Character() {
       });
     }
   };
-
-  const githubStatusText = user?.github?.connected
-    ? `GitHub: ${user.github.username}`
+  console.log(user, "=========suer");
+  const githubStatusText = user?.github?.Connected
+    ? user.github.Username
     : cookies.installation_id
       ? "GitHub: Linking…"
       : "Not connected";
