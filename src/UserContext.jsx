@@ -13,7 +13,6 @@ const initialState = {
 function reducer(state, action) {
   switch (action.type) {
     case "loading":
-      "loading...";
       return { ...state, isLoading: true, error: null };
 
     case "user/login":
@@ -28,6 +27,13 @@ function reducer(state, action) {
     case "user/error":
       return { ...state, isLoading: false, error: action.payload };
 
+    case "user/patch":
+      return {
+        ...state,
+        user: { ...state.user, ...action.payload },
+        isLoading: false,
+        error: null,
+      };
     default:
       throw new Error(`Unknown action type: ${action.type}`);
   }
@@ -80,7 +86,9 @@ export const UserProvider = ({ children }) => {
   function updateCharacter(user) {
     dispatch({ type: "user/update", payload: user });
   }
-
+  function patchUser(partial) {
+    dispatch({ type: "user/patch", payload: partial });
+  }
   async function updateUser(updates) {
     const token = cookies.get("jwt");
 
@@ -134,6 +142,7 @@ export const UserProvider = ({ children }) => {
         refreshUser,
         updateCharacter,
         updateUser,
+        patchUser,
       }}
     >
       {children}

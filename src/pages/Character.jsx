@@ -5,28 +5,46 @@ import { Link } from "react-router-dom";
 import { useToast } from "../utils/useToast";
 
 function Character() {
-  const { user, updateUser } = useUser();
-  const { showLoading, updateToast } = useToast();
+  const { user, updateUser, patchUser } = useUser();
+  const { showLoading, updateToast, showSuccess, showError } = useToast();
   const loaderData = useLoaderData();
   const [name, setName] = useState("");
   const email = useRef("");
   const [charData, setCharData] = useState([]);
-
+  const userSet = useRef(false);
   const [searchParams] = useSearchParams();
-  console.log(user);
 
   useEffect(() => {
-    if (!user.github.Connected && searchParams.get("installation_id")) {
-      if (loaderData.success) {
-        user.github.Connected = true;
-        user.github.username = loaderData.username;
-        useToast.success("Github connected 🚀");
-      } else {
-        useToast.error(loaderData.error);
+    console.log(!user.github.Connected, searchParams.get("installation_id"));
+    if (
+      !user.github.Connected &&
+      searchParams.get("installation_id") &&
+      !userSet
+    ) {
+      userSet.current = true;
+      console.log(loaderData, "loader data ");
+      if (loaderData?.success) {
+        patchUser({
+          github: {
+            ...user.github,
+            Connected: true,
+            Username: loaderData.username,
+          },
+        });
+        showSuccess("GitHub connected 🚀");
+      } else if (loaderData?.error) {
+        showError(loaderData.error);
       }
     }
-  }, [loaderData, searchParams, user?.github]);
-
+  }, [
+    patchUser,
+    loaderData,
+    searchParams,
+    user?.github,
+    showError,
+    showSuccess,
+  ]);
+  console.log("looping");
   useEffect(() => {
     if (user) {
       setName(user.name);

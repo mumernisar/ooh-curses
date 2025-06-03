@@ -19,25 +19,18 @@ export const loaderApp = ({ request }) => {
   return null; // loader must return something
 };
 
-export const loaderGithub = ({ request }) => {
+export const loaderGithub = async ({ request }) => {
   const url = new URL(request.url);
-  const searchParams = url.searchParams;
-  const insFromURL = searchParams.get("installation_id");
-  if (insFromURL) {
-    fetchData(`${API_URL}/github/verify`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        installation_id: Number(insFromURL),
-      }),
-    })
-      .then((res) => {
-        return res;
-      })
-      .catch((err) => {
-        return err;
-      });
-  }
+  const ins = url.searchParams.get("installation_id");
+  if (!ins) return null;
+
+  const data = await fetchData(`${API_URL}/github/verify`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ installation_id: Number(ins) }),
+  });
+
+  return data;
 };
 
 const fetchData = async (url, options = {}) => {
@@ -58,8 +51,5 @@ const fetchData = async (url, options = {}) => {
   const data = await response.json();
 
   console.log(data, "data------");
-  if (!response.ok) {
-    throw new Error(data.error || "An error occurred while fetching data");
-  }
   return data;
 };
