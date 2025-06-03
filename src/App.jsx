@@ -5,7 +5,7 @@ import { CookiesProvider } from "react-cookie";
 import { UserProvider } from "./UserContext.jsx";
 import { signUpAction, signInAction } from "./utils/actions";
 import { LogProvider } from "./LogContext";
-import { loaderApp } from "./utils/loader.jsx";
+import { loaderApp, loaderGithub } from "./utils/loader.jsx";
 import ModApp from "./utils/ModApp.jsx";
 
 import LoaderFull from "./components/LoaderFull";
@@ -33,6 +33,7 @@ const router = createBrowserRouter(
         },
         {
           path: "/character",
+          loader: loaderGithub,
           element: <Character />,
         },
         {
