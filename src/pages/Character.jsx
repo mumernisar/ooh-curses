@@ -19,7 +19,7 @@ function Character() {
     if (
       !user.github.Connected &&
       searchParams.get("installation_id") &&
-      !userSet
+      !userSet.current
     ) {
       userSet.current = true;
       console.log(loaderData, "loader data ");
