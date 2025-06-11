@@ -4,6 +4,8 @@ import { useUser } from "../UserContext";
 import { Link } from "react-router-dom";
 import { useToast } from "../utils/useToast";
 
+/// test cloudflare worker
+
 function Character() {
   const { user, updateUser, patchUser } = useUser();
   const { showLoading, updateToast, showSuccess, showError } = useToast();
