@@ -1,13 +1,11 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useLoaderData, useSearchParams } from "react-router-dom";
+import { useLoaderData, useSearchParams, useNavigate } from "react-router-dom";
 import { useUser } from "../UserContext";
 import { Link } from "react-router-dom";
 import { useToast } from "../utils/useToast";
 
-/// test cloudflare worker
-
 function Character() {
-  const { user, updateUser, patchUser } = useUser();
+  const { user, updateUser, patchUser, deleteUser, logout } = useUser();
   const { showLoading, updateToast, showSuccess, showError } = useToast();
   const loaderData = useLoaderData();
   const [name, setName] = useState("");
@@ -15,6 +13,7 @@ function Character() {
   const [charData, setCharData] = useState([]);
   const userSet = useRef(false);
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     console.log(!user.github.Connected, searchParams.get("installation_id"));
@@ -61,6 +60,35 @@ function Character() {
     const newCharData = [...charData];
     newCharData[index] = value;
     setCharData(newCharData);
+  };
+  const logoutUser = () => {
+    logout();
+    navigate("/auth/signin", { replace: true });
+    showSuccess("Logout Success!");
+  };
+  const deleteAccount = async () => {
+    if (!window.confirm("Delete your account permanently?")) return;
+
+    const toastId = showLoading("Deleting account…");
+
+    const result = await deleteUser();
+
+    if (result.success) {
+      updateToast(toastId, {
+        render: "Account deleted. Goodbye 👋",
+        type: "success",
+        isLoading: false,
+        autoClose: 4000,
+      });
+      navigate("/auth/signin", { replace: true });
+    } else {
+      updateToast(toastId, {
+        render: `Failed: ${result.error}`,
+        type: "error",
+        isLoading: false,
+        autoClose: 6000,
+      });
+    }
   };
 
   const removeCharField = (index) =>
@@ -187,7 +215,7 @@ function Character() {
         {/* Save Button */}
         <button
           onClick={handleSave}
-          className="mt-6 w-full rounded-lg bg-green-600 px-4 py-2 font-bold text-white transition-all hover:bg-green-700"
+          className="mt-12 w-full rounded-lg bg-green-600 px-4 py-2 font-bold text-white transition-all hover:bg-green-700"
         >
           Save Changes
         </button>
@@ -199,6 +227,18 @@ function Character() {
             🔗 Connect GitHub
           </a>
         )}
+        <button
+          onClick={logoutUser}
+          className="mt-12 w-full rounded-lg bg-orange-600 px-4 py-2 font-bold text-white transition-all hover:bg-red-900"
+        >
+          Logout
+        </button>
+        <button
+          onClick={deleteAccount}
+          className="mt-6 w-full rounded-lg bg-red-600 px-4 py-2 font-bold text-white transition-all hover:bg-red-700"
+        >
+          Delete Account
+        </button>
       </div>
     </div>
   );

@@ -76,6 +76,36 @@ export const UserProvider = ({ children }) => {
   async function login() {
     return await refreshUser();
   }
+  const deleteUser = async () => {
+    const token = cookies.get("jwt");
+
+    if (!token) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    try {
+      dispatch({ type: "loading" });
+      const response = await fetch(`${API_URL}/users/giveup`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || data.status !== "success") {
+        throw new Error(data.error || "Unknown server error");
+      }
+
+      logout();
+      return { success: true };
+    } catch (error) {
+      console.error("Account deletion failed:", error);
+      return { success: false, error: error.message };
+    }
+  };
 
   function logout() {
     cookies.remove("jwt");
@@ -143,6 +173,7 @@ export const UserProvider = ({ children }) => {
         updateCharacter,
         updateUser,
         patchUser,
+        deleteUser,
       }}
     >
       {children}

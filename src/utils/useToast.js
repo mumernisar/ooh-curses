@@ -13,7 +13,7 @@ const defaultToastConfig = {
 
 export const useToast = () => {
   const showSuccess = (message, config = {}) =>
-    toast.success(`🦄 ${message}`, { ...defaultToastConfig, ...config });
+    toast.success(`✅ ${message}`, { ...defaultToastConfig, ...config });
 
   const showError = (message, config = {}) =>
     toast.error(`❌ ${message}`, { ...defaultToastConfig, ...config });
@@ -37,6 +37,5 @@ export const useToast = () => {
     showWarning,
     showLoading,
     updateToast,
-    
   };
 };
